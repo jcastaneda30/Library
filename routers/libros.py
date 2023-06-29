@@ -7,15 +7,42 @@ from fastapi.encoders import jsonable_encoder
 import sys
 sys.path.append("./")
 from services.libros import LibrosService
-from schemas.libros import Libro
+from models.libros import Libro
+
 libros_router = APIRouter()
 
 @libros_router.get(path='/libros',tags=['libros'])
-def getLibros() -> List[Libro]:
+def get_libros() -> List[Libro]:
     instacia = LibrosService()
     result=instacia.get_libros()
     return JSONResponse(status_code=200,content=jsonable_encoder(result))
 
+@libros_router.get(path='/libros/{name}',tags=['libros'])
+def get_libros_id(name:str) -> Libro:
+    instacia = LibrosService()
+    result=instacia.get_libros_name(name)
+    return JSONResponse(status_code=200,content=jsonable_encoder(result))
 
-if __name__=="__main__":
-    print(getLibros())
+@libros_router.post(path='/libros',tags=['libros'])
+def post_libros(libro:Libro):
+    instacia = LibrosService()
+    instacia.post_libros(libro)
+    return ""
+
+@libros_router.put(path='/libros/{id}',tags=['libros'])
+def put_libros(id:int,libro:Libro):
+    instacia = LibrosService()
+    instacia.put_libros(id,libro)
+    return ""
+
+@libros_router.delete(path='/libros/{id}',tags=['libros'])
+def delete_libros(id:int):
+    instacia = LibrosService()
+    instacia.delete_libro_id(id)
+    return ""
+
+
+
+
+
+

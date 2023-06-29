@@ -3,40 +3,49 @@ import sys
 import sys
 sys.path.append("./")
 from config.mongoDBconection import get_client
+from fastapi.responses import JSONResponse
+from bson.objectid import ObjectId
+import pydantic
+pydantic.json.ENCODERS_BY_TYPE[ObjectId]=str
+
 class LibrosService():
     def __init__(self) -> None:
         self.db=get_client()
     #Metodos
     def get_libros(self):
-        return [x for x in self.db.libros.find()]
+        libros = self.db.libros.find()
+        libros_converted = []
+        for libro in libros:
+            libro['_id'] = str(libro['_id'])
+            libros_converted.append(libro)
+        return libros_converted
 
-    # def get_movie(self,id):
-    #     return self.db.query(MovieModel).filter(MovieModel.id==id).first()
+    def get_libros_name(self,name):
+        query = {'name':name}
+        result = self.db.libros.find()
+        result = self.db.libros.find({'name': name})
+        libros = []
+
+        for libro in result:
+            libro['_id'] = str(libro['_id'])
+            libros.append(libro)
+        print(libros)
+        return libros
     
-    # def get_movies_by_category(self,category):
-    #     return self.db.query(MovieModel).filter(MovieModel.category==category).all()
-    
-    # def create_movies(self, movies):
-    #     for movie in movies:
-    #         new_movie = MovieModel(**movie.dict())
-    #         self.db.add(new_movie)
-    #         self.db.commit()
-    #     return "Se realizo con exito"
-    
-    # def uptdate_movie(self,id:int,movie:Movie):
-    #     result = self.db.query(MovieModel).get(id)
-    #     result.movie_title= movie.movie_title
-    #     result.overview= movie.overview
-    #     result.year= movie.year   
-    #     result.rating= movie.rating   
-    #     result.category= movie.category   
-    #     self.db.commit()
-    #     self.db.refresh(result)
-    #     return "Realizado"
-    
-    # def delete_movies(self,id: int):
-    #     self.db.query(MovieModel).filter(MovieModel.id==id).delete()
-    #     return "Eliminacion adecuada"
+    def post_libros(self,item):
+        new_libro = dict(item)
+        print(new_libro)
+        self.db.libros.insert_one(new_libro)
+
+    def put_libros(self,name,item):
+        libro = self.db.libros.find_one({'name':name})
+        if not libro:
+            return JSONResponse(status_code=404,content={'message':'No se encontro'})
+        self.db.libros.update_one({"name":name})
+
+    def delete_libro_id(self,id):
+        pass
+
 
 if __name__=="__main__":
     a = LibrosService()
