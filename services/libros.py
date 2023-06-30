@@ -34,17 +34,28 @@ class LibrosService():
     
     def post_libros(self,item):
         new_libro = dict(item)
+        new_libro.pop("id", None)
         print(new_libro)
         self.db.libros.insert_one(new_libro)
 
     def put_libros(self,name,item):
-        libro = self.db.libros.find_one({'name':name})
+        libro = (self.db.libros.find_one({'name':name}))
         if not libro:
             return JSONResponse(status_code=404,content={'message':'No se encontro'})
-        self.db.libros.update_one({"name":name})
+        item = dict(item)
+        self.db.libros.update_one({"name":name},{
+            '$set':{'name':item['name'],
+            'overview':item['overview'],
+            'category':item['category'],
+            'chapter':item['chapter'],
+            'link':item['link']}
+        })
 
-    def delete_libro_id(self,id):
-        pass
+    def delete_libro_id(self,name):
+        libro = (self.db.libros.find_one({'name':name}))
+        if not libro:
+            return JSONResponse(status_code=404,content={'message':'No se encontro'})
+        self.db.libros.delete_one({"name":name})
 
 
 if __name__=="__main__":

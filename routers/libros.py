@@ -27,19 +27,19 @@ def get_libros_id(name:str) -> Libro:
 def post_libros(libro:Libro):
     instacia = LibrosService()
     instacia.post_libros(libro)
-    return ""
+    return "Creacion exitosa"
 
-@libros_router.put(path='/libros/{id}',tags=['libros'])
-def put_libros(id:int,libro:Libro):
+@libros_router.put(path='/libros/{name}',tags=['libros'])
+def put_libros(name:str,libro:Libro):
     instacia = LibrosService()
-    instacia.put_libros(id,libro)
-    return ""
+    instacia.put_libros(name,libro)
+    return "Actualizacion exitosa"
 
-@libros_router.delete(path='/libros/{id}',tags=['libros'])
-def delete_libros(id:int):
+@libros_router.delete(path='/libros/{name}',tags=['libros'])
+def delete_libros(name:str):
     instacia = LibrosService()
-    instacia.delete_libro_id(id)
-    return ""
+    instacia.delete_libro_id(name)
+    return "Eliminacion exitosa"
 
 
 

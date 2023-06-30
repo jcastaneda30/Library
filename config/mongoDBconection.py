@@ -10,3 +10,5 @@ def get_client():
    # Create the database for our example (we will use the same database throughout the tutorial
    return client['Library']
 
+if __name__=="__main__":
+  pass
