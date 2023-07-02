@@ -1,19 +1,17 @@
 #from schemas.libros import Libro
-import sys
+from .user import UsersService
 import sys
 sys.path.append("./")
 from config.mongoDBconection import get_client
 from fastapi.responses import JSONResponse
-from bson.objectid import ObjectId
-import pydantic
-pydantic.json.ENCODERS_BY_TYPE[ObjectId]=str
-
 class LibrosService():
+    user_id:str
     def __init__(self) -> None:
         self.db=get_client()
     #Metodos
     def get_libros(self):
-        libros = self.db.libros.find()
+        LibrosService.user_id = str(UsersService.user_id['_id'])
+        libros = self.db.libros.find({'user_id':LibrosService.user_id})
         libros_converted = []
         for libro in libros:
             libro['_id'] = str(libro['_id'])
@@ -21,27 +19,22 @@ class LibrosService():
         return libros_converted
 
     def get_libros_name(self,name):
-        query = {'name':name}
-        result = self.db.libros.find()
+        LibrosService.user_id = str(UsersService.user_id['_id'])
         result = self.db.libros.find({'name': name})
         libros = []
-
         for libro in result:
             libro['_id'] = str(libro['_id'])
             libros.append(libro)
-        print(libros)
         return libros
     
     def post_libros(self,item):
+        LibrosService.user_id = str(UsersService.user_id['_id'])
         new_libro = dict(item)
-        new_libro.pop("id", None)
-        print(new_libro)
+        new_libro['user_id']=LibrosService.user_id
         self.db.libros.insert_one(new_libro)
 
     def put_libros(self,name,item):
-        libro = (self.db.libros.find_one({'name':name}))
-        if not libro:
-            return JSONResponse(status_code=404,content={'message':'No se encontro'})
+        LibrosService.user_id = str(UsersService.user_id['_id'])
         item = dict(item)
         self.db.libros.update_one({"name":name},{
             '$set':{'name':item['name'],
@@ -52,10 +45,10 @@ class LibrosService():
         })
 
     def delete_libro_id(self,name):
-        libro = (self.db.libros.find_one({'name':name}))
-        if not libro:
-            return JSONResponse(status_code=404,content={'message':'No se encontro'})
-        self.db.libros.delete_one({"name":name})
+        LibrosService.user_id = str(UsersService.user_id['_id'])
+        libro = self.db.libros.find_one({'name':name})
+        if libro['user_id']==LibrosService.user_id:
+            self.db.libros.delete_one({"name":name})
 
 
 if __name__=="__main__":

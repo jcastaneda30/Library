@@ -18,26 +18,33 @@ def get_libros() -> List[Libro]:
     return JSONResponse(status_code=200,content=jsonable_encoder(result))
 
 @libros_router.get(path='/libros/{name}',tags=['libros'])
-def get_libros_id(name:str) -> Libro:
+def get_libros_names(name:str) -> Libro | dict:
     instacia = LibrosService()
     result=instacia.get_libros_name(name)
-    return JSONResponse(status_code=200,content=jsonable_encoder(result))
+    return JSONResponse(status_code=200,content=jsonable_encoder(result)) if len(result)!=0 else \
+        JSONResponse(status_code=404,content={'message':'No se encontro'})
 
 @libros_router.post(path='/libros',tags=['libros'])
-def post_libros(libro:Libro):
+def post_libros(libro:Libro) -> str:
     instacia = LibrosService()
     instacia.post_libros(libro)
     return "Creacion exitosa"
 
 @libros_router.put(path='/libros/{name}',tags=['libros'])
-def put_libros(name:str,libro:Libro):
+def put_libros(name:str,libro:Libro) -> str:
     instacia = LibrosService()
+    libro = instacia.get_libros_name(name)
+    if not libro:
+        return JSONResponse(status_code=404,content={'message':'No se encontro'})
     instacia.put_libros(name,libro)
     return "Actualizacion exitosa"
 
 @libros_router.delete(path='/libros/{name}',tags=['libros'])
-def delete_libros(name:str):
+def delete_libros(name:str) -> str:
     instacia = LibrosService()
+    libro = instacia.get_libros_name(name)
+    if not libro:
+        return JSONResponse(status_code=404,content={'message':'No se encontro'})
     instacia.delete_libro_id(name)
     return "Eliminacion exitosa"
 

@@ -1,5 +1,4 @@
 from pydantic import BaseModel,Field
-from typing import Optional
 
 class Libro(BaseModel):
     name:str = Field(ax_length=500)
